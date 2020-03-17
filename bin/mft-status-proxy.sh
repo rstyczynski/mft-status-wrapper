@@ -150,6 +150,7 @@ trace)
         echo "Starting active monitoring of $eventId..."
         echo OK >&2
 
+        export mft_env
         (
 
           if [ -z "$mft_env" ]; then
