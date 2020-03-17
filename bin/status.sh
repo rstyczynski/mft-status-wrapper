@@ -164,7 +164,7 @@ function getMFTStatusCSV() {
     fi
 
     if [ ! -f $binRoot/addTimestamp.pl ]; then
-        echo "Error. Provide UMC bin in toolsBin."
+        echo "Error. Provide UMC bin in binRoot."
         return 1
     fi
 
@@ -183,7 +183,7 @@ function getMFTStatusCSV() {
         tr ' ' ',' |
         sed "s/^/$short_stat,/g" |
         sed "s/^/$event_session_id,/g" |
-        perl $toolsBin/addTimestamp.pl >>$mftlog/$event_session_id/status.log
+        perl $binRoot/addTimestamp.pl >>$mftlog/$event_session_id/status.log
 }
 
 function activeMFTStatus() {
