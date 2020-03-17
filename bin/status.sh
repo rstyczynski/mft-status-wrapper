@@ -104,7 +104,7 @@ function getEventStatus() {
     unset failedInstanceCount
     unset status
 
-    eval $(getMFTCurrentStatus $event_session_id | jq | grep ':' | tr -d '"' | tr -d ' ' | tr -d ',' | tr ':' '=')
+    eval $(getMFTCurrentStatus $event_session_id | jq . | grep ':' | tr -d '"' | tr -d ' ' | tr -d ',' | tr ':' '=')
 
     #to test state change
     #activeInstanceCount=0
@@ -170,12 +170,12 @@ function getMFTStatusCSV() {
         mftlog=.
     fi
 
-    short_stat=$(getEventStatus $event_session_id | jq | grep ':' | tr -d '"' | tr -d ' ' | cut -f2 -d: | tr -d '\n')
+    short_stat=$(getEventStatus $event_session_id | jq . | grep ':' | tr -d '"' | tr -d ' ' | cut -f2 -d: | tr -d '\n')
 
     current=$(ls -tr $mftlog/$event_session_id/*details* | tail -1)
 
     cat $current |
-        jq -r '.instances[] | [.fileName, .status.status, .status.subStatus, .details.bytesReceived, .details.targets[0].status, .details.targets[0].deliveryStatus, .details.targets[0].bytesTransferred] | @tsv' |
+        jq -r  '.instances[] | [.fileName, .status.status, .status.subStatus, .details.bytesReceived, .details.targets[0].status, .details.targets[0].deliveryStatus, .details.targets[0].bytesTransferred] | @tsv' |
         column -t |
         tr -s ' ' |
         tr ' ' ',' |
