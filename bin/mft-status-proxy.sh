@@ -92,7 +92,7 @@ set +x
 ### route logic
 case $mft_action in
 
-/status)
+status)
   fetchMFTEventStatus $eventId >&2
   error_code=$?
   if [ $error_code -ne 0 ]; then
@@ -110,7 +110,7 @@ case $mft_action in
   fi
   ;;
 
-/trace)
+trace)
   if [ -f $mftlog/$eventId/status.log ]; then
 
     echo HTTP/1.1 200 OK
