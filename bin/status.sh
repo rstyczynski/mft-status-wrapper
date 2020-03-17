@@ -10,13 +10,17 @@ function fetchMFTEventStatus() {
         return 1
     fi
 
-    if [ ! -f ~/.mft/mftauth.cfg ]; then
-        echo "Error. Provide MFT credentials in ~/.mft/mftauth.cfg file in format user:pass."
+    if [ -z "$mft_env" ]; then
+        mft_env=mft
+    fi
+    
+    if [ ! -f ~/.mft/$mft_env.auth ]; then
+        echo "Error. Provide MFT credentials in ~/.mft/\$mft_env.auth file in format user:pass."
         return 1
     fi
 
     ### read cfg
-    eval $(cat ~/.mft/mft.cfg | grep -v mftauth)
+    eval $(cat ~/.mft/$mft_env.cfg| grep -v mftauth)
 
     if [ -z "$mftserver" ]; then
         echo "Error. Provide MFT server URL in mftserver variable in format http://ip or https://ip"
@@ -31,7 +35,7 @@ function fetchMFTEventStatus() {
 
     timestamp=$(date +%Y%m%dT%H%M%S)
 
-    curl -s -X GET -u $(cat ~/.mft/mftauth.cfg) -H "Content-Type: application/json" $mftserver/mftapp/rest/v1/events/$event_session_id >$mftlog/$event_session_id/$timestamp-raw.json
+    curl -s -X GET -u $(cat ~/.mft/$mft_env.auth) -H "Content-Type: application/json" $mftserver/mftapp/rest/v1/events/$event_session_id >$mftlog/$event_session_id/$timestamp-raw.json
     if [ $? -ne 0 ]; then
         echo "Error. Not able to connect to MFT instnace."
         return 2
@@ -42,10 +46,10 @@ function fetchMFTEventStatus() {
     grep MFT_WS_EVENT_SERVICE_NO_EVENT_FOUND $mftlog/$event_session_id/$timestamp-event.json >/dev/null
     if [ $? -ne 0 ]; then
 
-        curl -s -X GET -u $(cat ~/.mft/mftauth.cfg) -H "Content-Type: application/json" $mftserver/mftapp/rest/v1/events/$event_session_id/instances |
+        curl -s -X GET -u $(cat ~/.mft/$mft_env.auth) -H "Content-Type: application/json" $mftserver/mftapp/rest/v1/events/$event_session_id/instances |
             jq . >$mftlog/$event_session_id/$timestamp-instances.json
 
-        curl -s -X GET -u $(cat ~/.mft/mftauth.cfg) -H "Content-Type: application/json" $mftserver/mftapp/rest/v1/events/$event_session_id/instances?inDetail=true |
+        curl -s -X GET -u $(cat ~/.mft/$mft_env.auth) -H "Content-Type: application/json" $mftserver/mftapp/rest/v1/events/$event_session_id/instances?inDetail=true |
             jq . >$mftlog/$event_session_id/$timestamp-details.json
     else
         echo "Error. Event not found."
