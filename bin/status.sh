@@ -13,6 +13,9 @@ function fetchMFTEventStatus() {
         return 1
     fi
 
+    ### read cfg
+    eval $(cat ~/.mft/mft.cfg | grep -v mftauth)
+
     if [ -z "$mftserver" ]; then
         echo "Error. Provide MFT server URL in mftserver variable in format http://ip or https://ip"
         return 1
@@ -178,7 +181,7 @@ function getMFTStatusCSV() {
         tr ' ' ',' |
         sed "s/^/$short_stat,/g" |
         sed "s/^/$event_session_id,/g" |
-        perl $toolsBin/addTimestamp.pl >> $mftlog/$event_session_id/status.log
+        perl $toolsBin/addTimestamp.pl >>$mftlog/$event_session_id/status.log
 }
 
 function activeMFTStatus() {
