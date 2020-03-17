@@ -16,7 +16,7 @@ if [ -z "$mft_env" ]; then
   mft_env=mft
 fi
 
-if [ ! ~/.mft/$mft_env.cfg]; then
+if [ ! ~/.mft/$mft_env.cfg ]; then
   echo "Error. ~/.mft/$mft_env.cfgdoes not exit. Provide:"
   echo "1) mftserver=http[s]://mft.host.acme.com:port as main mft server address"
   echo "2) mftlog=path as directory for event data"
