@@ -66,7 +66,7 @@ function getMFTCurrentStatus() {
     current=$(ls -tr $mftlog/$event_session_id/*event* | tail -1)
     #echo
     #echo $current
-    cat $current | jq
+    cat $current | jq .
 }
 
 function getMFTActiveStatus() {
