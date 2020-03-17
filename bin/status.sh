@@ -35,7 +35,7 @@ function fetchMFTEventStatus() {
         return 2
     fi
 
-    cat $mftlog/$event_session_id/$timestamp-raw.json | jq >$mftlog/$event_session_id/$timestamp-event.json
+    cat $mftlog/$event_session_id/$timestamp-raw.json | jq . >$mftlog/$event_session_id/$timestamp-event.json
 
     grep MFT_WS_EVENT_SERVICE_NO_EVENT_FOUND $mftlog/$event_session_id/$timestamp-event.json >/dev/null
     if [ $? -ne 0 ]; then
