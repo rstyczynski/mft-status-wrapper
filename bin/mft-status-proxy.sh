@@ -24,8 +24,8 @@ if [ ! ~/.mft/$mft_env.cfg]; then
   exit 1
 fi
 
-if [ ! ~/.mft/mftauth.cfg ]; then
-  echo "Error. ~/.mft/mftauth.cfg does not exit. Provide MFT credentials in ~/.mft/mftauth.cfg file in format user:pass."
+if [ ! ~/.mft/$mft_env.auth ]; then
+  echo "Error. ~/.mft/$mft_env.auth does not exit. Provide MFT credentials in ~/.mft/$mft_env.auth file in format user:pass."
   exit 1
 fi
 
