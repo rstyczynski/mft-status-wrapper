@@ -31,9 +31,6 @@ fi
 
 export binRoot="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-### read cfg
-eval $(cat ~/.mft/$mft_env.cfg | grep -v mftauth)
-
 if [ -z "$wrapper_port" ]; then
   wrapper_port=6502
 fi
@@ -83,7 +80,10 @@ echo '----' >&2
 ### Main program goes here
 ###
 
-### load finctions
+### read cfg
+eval $(cat ~/.mft/$mft_env.cfg | grep -v mftauth)
+
+### load functions
 source $binRoot/status.sh
 
 ### set -x to debug
