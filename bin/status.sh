@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export binRoot="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 function fetchMFTEventStatus() {
     event_session_id=$1
 
@@ -161,7 +163,7 @@ function getMFTStatusCSV() {
         return 1
     fi
 
-    if [ ! -f $toolsBin/addTimestamp.pl ]; then
+    if [ ! -f $binRoot/addTimestamp.pl ]; then
         echo "Error. Provide UMC bin in toolsBin."
         return 1
     fi
