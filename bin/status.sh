@@ -41,10 +41,10 @@ function fetchMFTEventStatus() {
     if [ $? -ne 0 ]; then
 
         curl -s -X GET -u $(cat ~/.mft/mftauth.cfg) -H "Content-Type: application/json" $mftserver/mftapp/rest/v1/events/$event_session_id/instances |
-            jq >$mftlog/$event_session_id/$timestamp-instances.json
+            jq . >$mftlog/$event_session_id/$timestamp-instances.json
 
         curl -s -X GET -u $(cat ~/.mft/mftauth.cfg) -H "Content-Type: application/json" $mftserver/mftapp/rest/v1/events/$event_session_id/instances?inDetail=true |
-            jq >$mftlog/$event_session_id/$timestamp-details.json
+            jq . >$mftlog/$event_session_id/$timestamp-details.json
     else
         echo "Error. Event not found."
         return 3
