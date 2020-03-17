@@ -99,8 +99,8 @@ status)
     echo HTTP/1.1 404 Not Found
     echo Content-Type\: text/plain
     echo
-    echo "Event does not exit or server/network error. Code: $error_code"
-    echo "Event does not exit or server/network error. Code: $error_code" >&2
+    echo "Event does not exists or server/network error. Code: $error_code"
+    echo "Event does not exists or server/network error. Code: $error_code" >&2
   else
     echo HTTP/1.1 200 OK
     echo Content-Type\: application/json
@@ -126,8 +126,8 @@ trace)
       echo HTTP/1.1 404 Not Found
       echo Content-Type\: text/plain
       echo
-      echo "Event does not exit or server/network error. Code: $error_code"
-      echo "Event does not exit or server/network error. Code: $error_code" >&2
+      echo "Event does not exists or server/network error. Code: $error_code"
+      echo "Event does not exists or server/network error. Code: $error_code" >&2
     else
 
       if [ -f /tmp/$eventId.lock ]; then
