@@ -222,7 +222,7 @@ function activeMFTStatus() {
 
             getMFTStatusCSV $event_session_id
 
-            getEventStatus $event_session_id | jq -r .effective_status | egrep "DONE|FAILED" >/dev/null
+            getEventStatus $event_session_id | jq -r .effective_status | egrep "DONE|FAILED|ERRORED" >/dev/null
             go=$?
             if [ $go -eq 1 ]; then
                 sleep 1

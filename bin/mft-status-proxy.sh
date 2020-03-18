@@ -89,92 +89,87 @@ source $binRoot/status.sh
 ### set -x to debug
 set +x
 
+### check state
+fetchMFTEventStatus $eventId >&2
+error_code=$?
+if [ $error_code -ne 0 ]; then
+  echo HTTP/1.1 404 Not Found
+  echo Content-Type\: text/plain
+  echo
+  echo "Event does not exists or server/network error. Code: $error_code"
+  echo "Event does not exists or server/network error. Code: $error_code" >&2
+  exit 1
+fi
+
+event_status=$(getEventStatus $event_session_id | jq -r .effective_status)
+
 ### route logic
 case $mft_action in
 
 status)
-  fetchMFTEventStatus $eventId >&2
-  error_code=$?
-  if [ $error_code -ne 0 ]; then
-    echo HTTP/1.1 404 Not Found
-    echo Content-Type\: text/plain
-    echo
-    echo "Event does not exists or server/network error. Code: $error_code"
-    echo "Event does not exists or server/network error. Code: $error_code" >&2
-  else
-    echo HTTP/1.1 200 OK
-    echo Content-Type\: application/json
-    echo
-    getEventStatus $eventId
-    echo OK >&2
-  fi
+  echo HTTP/1.1 200 OK
+  echo Content-Type\: application/json
+  echo
+  getEventStatus $eventId
+  echo OK >&2
   ;;
 
 trace)
-  if [ -f $mftlog/$eventId/status.log ]; then
-
+  if [[ -f $mftlog/$eventId/status.log  && "$event_status" != "ERRORED" ]] ; then
     echo HTTP/1.1 200 OK
     echo Content-Type\: text/plain
     echo
     cat $mftlog/$eventId/status.log
     echo OK >&2
-
   else
-    fetchMFTEventStatus $eventId >&2
-    error_code=$?
-    if [ $error_code -ne 0 ]; then
-      echo HTTP/1.1 404 Not Found
+    if [ -f /tmp/$eventId.lock ]; then
+
+      echo HTTP/1.1 203 Non-Authoritative Information
+      echo Content-Type\: text/csv
+      echo
+      cat $mftlog/$eventId/status.log
+      echo OK >&2
+
+      #
+      # TODO: corner case: check if lock's owner is still working, if not delete lock
+      #
+
+    else
+      echo $$ >/tmp/$eventId.lock
+
+      echo HTTP/1.1 201 Created
       echo Content-Type\: text/plain
       echo
-      echo "Event does not exists or server/network error. Code: $error_code"
-      echo "Event does not exists or server/network error. Code: $error_code" >&2
-    else
+      echo Monitoring EventId: $eventId
+      echo
 
-      if [ -f /tmp/$eventId.lock ]; then
+      echo "Starting active monitoring of $eventId..."
+      echo OK >&2
 
-        echo HTTP/1.1 203 Non-Authoritative Information
-        echo Content-Type\: text/csv
-        echo
-        cat $mftlog/$eventId/status.log
-        echo OK >&2
+      export mft_env
+      (
 
-      else
-        echo $$ >/tmp/$eventId.lock
+        if [ -z "$mft_env" ]; then
+          mft_env=mft
+        fi
 
-        echo HTTP/1.1 201 Created
-        echo Content-Type\: text/plain
-        echo
-        echo Monitoring EventId: $eventId
-        echo
+        ### read cfg
+        eval $(cat ~/.mft/$mft_env.cfg | grep -v mftauth)
+        ### load finctions
+        source $binRoot/status.sh
 
-        echo "Starting active monitoring of $eventId..."
-        echo OK >&2
+        function cleanup() {
+          echo cleaning up >&2
+          rm -f /tmp/$eventId.lock
+        }
+        trap cleanup EXIT
 
-        export mft_env
-        (
+        activeMFTStatus $eventId
+        sleep 10
+        activeMFTStatus $eventId
 
-          if [ -z "$mft_env" ]; then
-            mft_env=mft
-          fi
-
-          ### read cfg
-          eval $(cat ~/.mft/$mft_env.cfg | grep -v mftauth)
-          ### load finctions
-          source $binRoot/status.sh
-
-          function cleanup() {
-            echo cleaning up >&2
-            rm -f /tmp/$eventId.lock
-          }
-          trap cleanup EXIT
-
-          activeMFTStatus $eventId
-          sleep 10
-          activeMFTStatus $eventId
-
-          cleanup
-        ) &
-      fi
+        cleanup
+      ) &
     fi
   fi
   ;;
