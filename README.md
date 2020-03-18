@@ -4,6 +4,8 @@
 To prepare functions for work set server, username, and password in cfg file. By default scripts will save data in current dir. You may specify own directory to store data files.
 
 ```
+umask 077
+
 mkdir -p ~/.mft
 mkdir ~/mft/logs
 
@@ -168,6 +170,8 @@ To use scripts with more than one server prepare configuration files as mentione
 For example for 'dev' you may do:
 
 ```
+umask 077
+
 cat >~/.mft/dev.cfg <<EOF
 mftserver=http://devmft.acme.com
 mftlog=~/mft/logs
