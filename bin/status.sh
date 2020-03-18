@@ -2,6 +2,8 @@
 
 export binRoot="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+export mft_env=mft
+
 function fetchMFTEventStatus() {
     event_session_id=$1
 

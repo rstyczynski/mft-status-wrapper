@@ -12,7 +12,7 @@ mftserver=http://mft.acme.com
 mftlog=~/mft/logs
 EOF
 
-cat >~/.mft/mftauth.cfg <<EOF
+cat >~/.mft/mft.auth <<EOF
 mftuser:welcome1
 EOF
 ```
@@ -121,7 +121,7 @@ It's possible to interact with scripts over HTTP protocol. Service wrapper offer
 To run http sever:
 
 ```
-bin/mft-status-proxy.sh
+bin/mft-status-proxy.sh WRAPPER 6502
 ```
 
 By default service listens on port 6502, use wrapper_port cfg parameter to set different port.
@@ -130,7 +130,7 @@ By default service listens on port 6502, use wrapper_port cfg parameter to set d
 ## get status
 
 ```
-curl "http://localhost:6502/status?eventId=FE6B5255-8572-4B56-93BE-CEA581F4DCD8"
+curl "http://localhost:6502/mft/status?eventId=FE6B5255-8572-4B56-93BE-CEA581F4DCD8"
 {
     "activeInstanceCount": "0",
     "completedInstanceCount": "283",
@@ -145,7 +145,7 @@ curl "http://localhost:6502/status?eventId=FE6B5255-8572-4B56-93BE-CEA581F4DCD8"
 To initiate trace invoke trace function with required event id.
 
 ```
-curl -s "http://localhost:6502/trace?eventId=FE6B5255-8572-4B56-93BE-CEA581F4DCD8"
+curl -s "http://localhost:6502/mft/trace?eventId=FE6B5255-8572-4B56-93BE-CEA581F4DCD8"
 ```
 
 Note that only one collection for event id may be performed at a time. YOu will be notified by error that there is ongoing data collection. Collector will work until transfer reaches DONE or FAILED state.
@@ -156,11 +156,46 @@ Note that only one collection for event id may be performed at a time. YOu will 
 Once trace is finished trace returns collected data.
 
 ```
-curl -s "http://localhost:6502/trace?eventId=FE6B5255-8572-4B56-93BE-CEA581F4DCD8" | head -2
+curl -s "http://localhost:6502/mft/trace?eventId=FE6B5255-8572-4B56-93BE-CEA581F4DCD8" | head -2
 2020-03-16,20:02:10,+0100,1584385330,FE6B5255-8572-4B56-93BE-CEA581F4DCD8,0,1,0,IN_PROGRESS,inv_position_MENA_nf_ARE_COL_416_0000638_2020_03_16.csv,COMPLETED,SUCCESSFUL,32234,COMPLETED,SUCCESSFUL,32234
 2020-03-16,20:02:12,+0100,1584385332,FE6B5255-8572-4B56-93BE-CEA581F4DCD8,0,1,0,IN_PROGRESS,inv_position_MENA_nf_ARE_COL_416_0000638_2020_03_16.csv,COMPLETED,SUCCESSFUL,32234,COMPLETED,SUCCESSFUL,32234
 ```
 
+## multiserver configuratrion
 
+To use scripts with more than one server prepare configuration files as mentioned above, but writing parameters into files with server/environment name.
+
+For example for 'dev' you may do:
+
+```
+cat >~/.mft/dev.cfg <<EOF
+mftserver=http://devmft.acme.com
+mftlog=~/mft/logs
+EOF
+
+cat >~/.mft/dev.auth <<EOF
+mftdeveloper:welcome1
+EOF
+```
+
+To use it in scripts set:
+
+```
+mft_env=dev
+```
+
+Note that only fetch uses actual TCP communication with MFT server. Rest of tools gets latest server answer from files.
+
+```
+eventId=1465CAD9-8400-4FC7-9725-E783F03627C4
+fetchMFTEventStatus $eventId
+```
+
+
+To use it with http wrapper, put configuratino name in path after server/port.
+
+```
+curl -s "http://localhost:6502/dev/trace?eventId=FE6B5255-8572-4B56-93BE-CEA581F4DCD8"
+```
 
 
